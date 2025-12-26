@@ -1,0 +1,19 @@
+&cntrl
+  imin=0,
+  irest=1, ntx=5,        ! use 0/1 if NOT restarting
+  nstlim=10000000, dt=0.002,   ! 20 ns = 10,000,000 steps at 2 fs
+  temp0=298.0,
+  ntc=2, ntf=2,          ! SHAKE bonds to H
+  cut=8.0,
+
+  ntb=2, ntp=1,          ! periodic + constant pressure (explicit water)
+  barostat=2,            ! Monte Carlo barostat (good for GPU)
+  ntt=3, gamma_ln=1.0,   ! Langevin thermostat
+
+  ntpr=1000, ntwr=50000, ! print + write restart (adjust as you like)
+  ntwx=5000,             ! trajectory frequency (every 10 ps at 2 fs)
+  iwrap=1,               ! usually convenient for explicit solvent
+
+  ioutfm=1, ntxo=2,
+  ig=-1
+/

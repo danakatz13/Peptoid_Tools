@@ -1,0 +1,28 @@
+source leaprc.protein.ff14SB
+source leaprc.gaff2
+set default PBRadii mbondi3
+source leaprc.water.tip3p
+
+loadAmberPrep ../params/DAL.prepin
+loadAmberPrep ../params/IPP.prepin
+loadAmberPrep ../params/DMP.prepin
+loadAmberPrep ../params/MPE.prepin
+loadAmberPrep ../params/MPP.prepin
+loadAmberParams ../params/DAL.frcmod
+loadAmberParams ../params/MPP.frcmod
+loadAmberParams ../params/DMP.frcmod
+loadAmberParams ../params/IPP.frcmod
+loadAmberParams ../params/MPE.frcmod
+
+
+x = loadPDB pose1_clean.pdb
+desc x
+desc x
+bond x.1.N x.6.C
+prot = loadPDB bcat_renum.pdb
+complex = combine{prot x}
+solvatebox complex TIP3PBOX 10.0
+saveAmberParm complex dss.parm7 dss.rst7
+
+quit
+
