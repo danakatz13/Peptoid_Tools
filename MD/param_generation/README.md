@@ -1,12 +1,8 @@
 # How to parametize non-standard amino acids in AMBER
 
 ## Generating non-standard amino acid residue
-To start, we need to generate a .mol2 file of the capped residue by itself. If you have this available, skip this step.
 
-There are 2 ways you can generate these pdb/.mol2 capped residue files. If you use #2, they should have a consistent atom naming scheme and generating a mainchain file in a later step should be the same for all residues. If you have many different residues, I suggest you use this approach. 
-
-### Option #1 : Use ChemDraw
-### Option #2 : Use SMILES and decompose2smiles.py
+### Use SMILES and decompose2smiles.py
 To generate these consistent structure files, we use their SMILES, written as either a primary amine (peptoid) or a peptide residue (NC(R)C(=O)) for a non-canonical amino acid.
 
 decompse2smiles.py will generate a .pdb of the capped residue. 
@@ -68,14 +64,19 @@ done
 These 2 files (.prepin and .frcmod) describe all the parameters needed for AMBER to build a non-standard residue. Most errors will involve missing parameters for these 2 files.
 
 ## Preparing Structure
-Okay, this is the most annoying part. We have to manually change the .pdb atom names to match with the GAFF atom names we generated so AMBER can understand.
 
 To clean up the .pdb:
 ```
 pdb4amber -i {name}_truncated.pdb -o {name}_clean.pdb --dry --reduce
 ```
-Now, we need to edit the atom names for any non-canonical residues we built parameters for. I find the easiest way to do this is have the clean structure open in one PyMol window, and the .gaff2.mol2 structures for each residue open in another one. Going through the PDB, you have to change the atom name to match the .gaff2.mol2 structure. 
+To change the PDB atom types in the clean structure to match the GAFF atom types AMBER uses for parameterization, the python script rename_GAFF_types.py uses the atom names in the .gaff2.mol2 file generated and matches them to atoms in PDB structure based on their residue code and creates an atom map. This is a quick (mostly) automated way to rename the atoms to match AMBER GAFF types.
+In a directory with your prepared structure, add the .gaff2.mol2 files and run this script:
+```
+rename_GAFF_types.py
+```
+It matches the PDB file in the directory and the .gaff2.mol2 files and prepares a new structure named file_renamed.pdb. This is now the structure you should use in tleap.
 
+**Note: For some reason, the GAFF atom type for chlorine atoms is 'CL' but in the prepin file, its generated as 'Cl'. In the PDB structure, just change the 'CL' in the atom name to 'Cl'. The atom number is unchanged (ex. CL16 --> Cl16)
 ### A third-level heading
 
 Style	Syntax	Keyboard shortcut	Example	Output
