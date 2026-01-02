@@ -5,7 +5,11 @@
 ### Use SMILES and decompose2smiles.py
 To generate these consistent structure files, we use their SMILES, written as either a primary amine (peptoid) or a peptide residue (NC(R)C(=O)) for a non-canonical amino acid.
 
-decompse2smiles.py will generate a .pdb of the capped residue. 
+generate_amber_params will generate a .pdb of the capped residue. 
+```
+python generate_amber_params smiles.csv -o output_dir
+```
+smiles.csv has 2 columns : code + SMILES with comma delimeter. 
 
 ### Generate GAFF atom types for your capped residue
 This step is necessary to view the GAFF atom names that AMBER will give your atoms. Visualizing this in PyMol will be helpful for later steps to match atom names. 
