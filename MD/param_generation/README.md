@@ -91,12 +91,16 @@ It matches the PDB file in the directory and the .gaff2.mol2 files and prepares 
 **Note: For some reason, for residues with an aromatic ring directly attached to Nitrogen, it incorrectly reads the 'CA' and has some parameters missing. Add this to .frcmod for that residue, and that should eliminate any problems.
 
 Under torsions:
+```
 CA-N -C     70.0   120.0
 C -N -CA    70.0   120.0
+```
 
 Under dihedrals: 
+```
 CA-CA-N -C    4   1.800   180.000   2.000
 C -N -CA-CA   4   1.800   180.000   2.000
+```
 ### A third-level heading
 
 Style	Syntax	Keyboard shortcut	Example	Output
