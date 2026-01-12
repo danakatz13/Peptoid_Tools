@@ -1,26 +1,33 @@
 # How to parametize non-standard amino acids in AMBER
 
 ## Generating non-standard amino acid residue
-
-### Use SMILES and decompose2smiles.py
+Need to setup a custom enviorment (**add requirments.txt**)
+```
+module purge
+module load anaconda3/2020.07
+module load amber/openmpi/intel/22.03
+conda activate /scratch/dk4128/penv
+```
+### Use SMILES and generate_amber_mol2.py
 To generate these consistent structure files, we use their SMILES, written as either a primary amine (peptoid) or a peptide residue (NC(R)C(=O)) for a non-canonical amino acid.
 
-generate_amber_params will generate a .pdb of the capped residue. 
+generate_amber_mol2 will generate a .mol of the capped residue. 
 ```
-python generate_amber_params smiles.csv -o output_dir
+python generate_amber_mol2.py smiles.csv -o output_dir
 ```
-smiles.csv has 2 columns : code + SMILES with comma delimeter. 
+smiles.csv has 2 columns : code + SMILES with comma delimeter. Code should be 3 characters and NEVER the same as a canonical amino acid.
+In output_dir you will now have a .mol file for each residue. Originally, it generated the files as PDBs, but it seemed to cause some downstream consequence due to some of the double bonds not being properly labeled (PDBs have no bond order). MOL2 should correctly store bond orders
 
 ### Generate GAFF atom types for your capped residue
 This step is necessary to view the GAFF atom names that AMBER will give your atoms. Visualizing this in PyMol will be helpful for later steps to match atom names. 
 
 For one single residue at a time : 
 ```
-antechamber -i ACG.pdb -fi pdb -o ACG.gaff2.mol2 -fo mol2 -rn ACG -at gaff2 -an yes -dr no -pf yes -c bcc -nc 0
+antechamber -i 003.mol2 -fi mol2 -o 003.gaff2.mol2 -fo mol2 -rn 003 -at gaff2 -an yes -dr no -pf yes -c bcc -nc 0
 ```
 For all residues in a directory : 
 ```
-for f in *.pdb; do base="${f%.pdb}"; antechamber -i "$f" -fi pdb -o "${base}.gaff2.mol2" -fo mol2 -rn "$base" -at gaff2 -an yes -dr no -pf yes -c bcc -nc 0; done
+for f in *.mol2; do      base="${f%.mol2}";     antechamber -i "$f" -fi mol2 -o "${base}.gaff2.mol2" -fo mol2 -rn "$base" -at gaff2 -an yes -dr no -pf yes -c bcc -nc 0; done
 ```
 
 ## Parameterization
@@ -28,17 +35,17 @@ These following steps generate partial charges/atom names/bond angles/bond dihed
 
 For one single residue at a time : 
 ```
-antechamber -i ACG.pdb -fi pdb -bk ACG -fo ac -o ACG.ac -c bcc -at amber -nc 0
+antechamber -i 003.mol2 -fi mol2 -bk 003 -fo ac -o 003.ac -c bcc -at amber -nc 0
 ```
 For all residues in a directory : 
 ```
-for f in *.pdb; do base="${f%.pdb}"; antechamber -i "$f" -fi pdb -bk "$base" -fo ac -o "$base.ac" -c bcc -at amber -nc 0; done
+for f in *.mol2; do base="${f%.mol2}"; antechamber -i "$f" -fi mol2 -bk "$base" -fo ac -o "$base.ac" -c bcc -at amber -nc 0; done
 ```
-After these .ac files are generated, you need to check that the backbone nitrogen was classified as 'N' type. These different atom types will affect the bond lengths and angles. I am not sure why some residues label it as 'NT' or 'N2' and some don't, so I don't know how to automate this step. Just check each .ac file and make sure the first nitrogen listed has an 'N' in the last column. If not change it, and make sure the indentation lines up with the rest of the rows.
+After these .ac files are generated, you need to check that the backbone nitrogen was classified as 'N' type. These different atom types will affect the bond lengths and angles. I am not sure why some residues label it as 'NT' or 'N2' and some don't, so I don't know how to automate this step. Just check each .ac file and make sure the first nitrogen listed has an 'N' in the last column. If not change it, and make sure the indentation lines up with the rest of the rows. (007)
 
 Next, we need to generate a mainchain file. This file will tell AMBER, which residues are actually present in the sequence and which are considered 'DUMMY' atoms and will be replaced with the preceeding/proceeding residue. 
 
-This is an example of what atoms are considered what along with the mainchain file 
+This is an example of what atoms are considered what along with the mainchain file **insert peptoid mainchain**
 
 <img width="155" height="212" alt="image" src="https://github.com/user-attachments/assets/c3ec77e1-652e-464d-bae6-68455fac48f4" />
 <img width="91" height="215" alt="image" src="https://github.com/user-attachments/assets/d0481570-489a-4c25-a2f3-2371eff3987d" />
@@ -47,17 +54,17 @@ This is an example of what atoms are considered what along with the mainchain fi
 
 Once you have the mainchain file, run this: 
 ```
-prepgen -i ACG.ac -o ACG.prepin -m ACG_mainchain.mc -rn ACG
+prepgen -i 003.ac -o 003.prepin -m peptoid_mainchain.mc -rn 003
 ```
 ```
 for f in *.ac; do
     base=$(basename "$f" .ac)
-    prepgen -i "$f" -o "${base}.prepin" -m "${base}_mainchain.mc" -rn "$base"
+    prepgen -i "$f" -o "${base}.prepin" -m peptoid_mainchain.mc -rn "$base"
 done
 ```
 Next to generate .frcmod file:
 ```
-parmchk2 -i ACG.prepin -f prepi -o ACG.frcmod -a Y
+parmchk2 -i 003.prepin -f prepi -o 003.frcmod -a Y
 ```
 ```
 for f in *.prepin; do
@@ -81,6 +88,15 @@ rename_GAFF_types.py
 It matches the PDB file in the directory and the .gaff2.mol2 files and prepares a new structure named file_renamed.pdb. This is now the structure you should use in tleap.
 
 **Note: For some reason, the GAFF atom type for chlorine atoms is 'CL' but in the prepin file, its generated as 'Cl'. In the PDB structure, just change the 'CL' in the atom name to 'Cl'. The atom number is unchanged (ex. CL16 --> Cl16)
+**Note: For some reason, for residues with an aromatic ring directly attached to Nitrogen, it incorrectly reads the 'CA' and has some parameters missing. Add this to .frcmod for that residue, and that should eliminate any problems.
+
+Under torsions:
+CA-N -C     70.0   120.0
+C -N -CA    70.0   120.0
+
+Under dihedrals: 
+CA-CA-N -C    4   1.800   180.000   2.000
+C -N -CA-CA   4   1.800   180.000   2.000
 ### A third-level heading
 
 Style	Syntax	Keyboard shortcut	Example	Output
