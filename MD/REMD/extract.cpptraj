@@ -1,0 +1,19 @@
+parm design_1.parm7
+
+trajin remd.mdcrd.001
+trajin remd.mdcrd.002
+trajin remd.mdcrd.003
+trajin remd.mdcrd.004
+trajin remd.mdcrd.005
+trajin remd.mdcrd.006
+trajin remd.mdcrd.007
+trajin remd.mdcrd.008
+trajin remd.mdcrd.009
+trajin remd.mdcrd.010
+trajin remd.mdcrd.011
+trajin remd.mdcrd.012
+
+trajout remd.267K.nc remdtraj remdtrajtemp 267.00 nobox
+
+run
+

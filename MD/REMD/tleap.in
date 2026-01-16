@@ -1,0 +1,25 @@
+source leaprc.gaff2
+source leaprc.water.tip3p
+source leaprc.protein.ff14SB
+set default PBRadii mbondi3
+
+loadAmberPrep ../../params/103.prepin
+loadAmberPrep ../../params/007.prepin
+loadAmberPrep ../../params/006.prepin
+loadAmberPrep ../../params/005.prepin
+loadAmberPrep ../../params/111.prepin
+loadAmberParams ../../params/103.frcmod
+loadAmberParams ../../params/111.frcmod
+loadAmberParams ../../params/006.frcmod
+loadAmberParams ../../params/005.frcmod
+loadAmberParams ../../params/007.frcmod
+
+x = loadPDB c5_1_renum.pdb
+bond x.1.N x.5.C
+desc x.1
+desc x.2
+desc x.3
+desc x.4
+desc x.5
+saveAmberParm x design_1.parm7 design_1.rst7
+quit

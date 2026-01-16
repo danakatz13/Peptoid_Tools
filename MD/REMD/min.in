@@ -1,0 +1,7 @@
+energy minimization
+ &cntrl
+  imin=1, maxcyc=50000, ncyc=500,
+  ntwr = 1000, ntpr = 100, ntmin = 3
+  cut = 999.0, rgbmax = 999.0,
+  ntb = 0, igb = 5, saltcon = 0.0, ntxo=1
+ /
