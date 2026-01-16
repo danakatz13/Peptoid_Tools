@@ -1,0 +1,25 @@
+parm design_1.parm7
+trajin md1.nc
+
+# Use first frame as reference
+reference md1.nc 1 [ref]
+
+# 1) Align to protein backbone
+rms fit_protein ref [ref] :1-394@CA,C,N
+
+# 2) Peptoid macrocycle RMSD (heavy atoms)
+rmsd lig_rmsd \
+     out peptoid_rmsd.dat \
+     ref [ref] \
+     :395-399&!@H=
+
+# 3) Binding-site RMSD (heavy atoms)
+rmsd bs_rmsd \
+     out binding_site_rmsd.dat \
+     ref [ref] \
+     :10,12,14,19,38,98-100,137,139-140,179,181-184,186,205,207-209,211-213,235,260-261,263,277-279,282-289,344,346-347,349-350&!@H=
+
+rmsd bs_plus_lig_rmsd \
+     out binding_site_plus_ligand_rmsd.dat \
+     ref [ref] \
+     (:10,12,14,19,38,98-100,137,139-140,179,181-184,186,205,207-209,211-213,235,260-261,263,277-279,282-289,344,346-347,349-350,:395-399)&!@H=
