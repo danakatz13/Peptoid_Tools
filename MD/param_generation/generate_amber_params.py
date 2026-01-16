@@ -14,7 +14,7 @@ reaction_2 = AllChem.ReactionFromSmarts(reaction_smarts_2)
 
 
 def apply_amino_acid_naming(mol):
-    """Finds N-acetylated AMINO ACID backbone and applies names."""
+    """Finds peptides backbone and applies names."""
     backbone_smarts = '[CH3:1]-[C:2](=[O:3])-[NH:4]-[CX4:5]-[C:6](=[O:7])'
     backbone_pattern = Chem.MolFromSmarts(backbone_smarts)
     pdb_names = [
@@ -60,7 +60,6 @@ def apply_peptoid_naming(mol):
 def rename_hydrogens(mol):
     """
     Renames hydrogens based on their heavy atom neighbor's PDB name
-    to ensure unique names (e.g., H attached to ' CA ' -> ' HA1', 'HA2').
     """
     h_counts = {}
 
@@ -127,7 +126,6 @@ def smiles_to_pdb(name, smiles, out_dir):
                 print(f"[{name}] Sanitization failed after reaction: {e}")
                 continue
 
-            # Give default residue info + atom names so downstream calls don't crash
             default_res_name = 'UNK'
             default_res_num = 1
             for atom in m.GetAtoms():
