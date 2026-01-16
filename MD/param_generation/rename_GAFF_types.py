@@ -5,7 +5,6 @@ import sys
 import os
 import glob
 
-# Configuration
 OUTPUT_SUFFIX = "_renamed.pdb"  # Result will be inputname_renamed.pdb
 
 def get_element_from_type(atom_type):
@@ -109,7 +108,7 @@ def build_pdb_residue_graph(residue_data, full_connectivity):
     for s in serials:
         G.add_node(s, element=elements[s])
 
-    # Filter connectivity to only include bonds strictly *within* this residue
+    # Filter connectivity to only include bonds strictly within this residue
     relevant_bonds = 0
     serial_set = set(serials)
     for (s1, s2) in full_connectivity:
@@ -117,7 +116,7 @@ def build_pdb_residue_graph(residue_data, full_connectivity):
             G.add_edge(s1, s2)
             relevant_bonds += 1
 
-    # Fallback: Distance-based bonds
+
     if relevant_bonds == 0 and len(serials) > 1:
         s_list = list(serials)
         for i in range(len(s_list)):
@@ -131,10 +130,6 @@ def build_pdb_residue_graph(residue_data, full_connectivity):
     return G
 
 def find_matching_mol2(resName, available_mol2s):
-    """
-    Finds the best mol2 file for a residue name.
-    Prioritizes Exact Match (e.g. 006.mol2) > Partial Match (006.gaff2.mol2)
-    """
     # 1. Exact Name match (e.g. "006.mol2")
     for m in available_mol2s:
         if os.path.basename(m).split('.')[0] == resName:
@@ -151,7 +146,7 @@ def process_single_pdb(pdb_file, available_mol2s):
     print(f"\nProcessing {pdb_file}...")
     residues, connectivity, all_lines = parse_pdb_structure(pdb_file)
     
-    # Map serials to line indices
+
     serial_to_line_idx = {}
     for idx, line in enumerate(all_lines):
         if line.startswith(("ATOM", "HETATM")):
@@ -160,13 +155,12 @@ def process_single_pdb(pdb_file, available_mol2s):
 
     print(f"  Found {len(residues)} residues.")
     
-    # Cache loaded mol2 graphs to save time
+
     loaded_mol2_graphs = {}
 
     for res_key, res_data in residues.items():
         resName, chain, resSeq = res_key
         
-        # Find matching Mol2 from our scanned list
         mol2_path = find_matching_mol2(resName, available_mol2s)
         
         if not mol2_path:
@@ -202,7 +196,6 @@ def process_single_pdb(pdb_file, available_mol2s):
         else:
             print(f"    ✘ FAILED {resName}-{resSeq}. Structure does not match {os.path.basename(mol2_path)}")
 
-    # Construct output filename
     base_name = os.path.splitext(pdb_file)[0]
     output_name = f"{base_name}{OUTPUT_SUFFIX}"
     
