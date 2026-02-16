@@ -1,19 +1,19 @@
 parm design_1.parm7
 trajin md1.nc
 
-# Use first frame as reference
+# use first frame as reference
 reference md1.nc 1 [ref]
 
-# 1) Align to protein backbone
+# align to protein backbone
 rms fit_protein ref [ref] :1-394@CA,C,N
 
-# 2) Peptoid macrocycle RMSD (heavy atoms)
+# peptoid macrocycle RMSD (heavy atoms)
 rmsd lig_rmsd \
      out peptoid_rmsd.dat \
      ref [ref] \
      :395-399&!@H=
 
-# 3) Binding-site RMSD (heavy atoms)
+# binding-site RMSD
 rmsd bs_rmsd \
      out binding_site_rmsd.dat \
      ref [ref] \
