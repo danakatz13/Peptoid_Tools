@@ -41,7 +41,7 @@
 	</RESIDUE_SELECTORS>
 	<PACKER_PALETTES>
 		<CustomBaseTypePackerPalette name="mini_palette" additional_residue_types="001,101,111,202,208,211,303,411,601,602" />
-		<CustomBaseTypePackerPalette name="design_palette" additional_residue_types="026,651,303,211,411,321,305,205,118,006,602,103,111,406,202,210,001,101,314,410,601,005,009,117,007,204,208,412" />
+		<CustomBaseTypePackerPalette name="design_palette" additional_residue_types="001,101,111,202,208,211,303,411,601,602,026,651,303,211,411,321,305,205,118,006,103,406,210,314,410,601,005,009,117,007,204,412" />
 	</PACKER_PALETTES>
 	<TASKOPERATIONS>
 		<OperateOnResidueSubset name="dont_design_protein" selector="notA" >
