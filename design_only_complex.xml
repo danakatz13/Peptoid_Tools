@@ -1,0 +1,103 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+ 		<ScoreFunction name="r15" weights="ref2015.wts" />
+		<!--Reweight scoretype="aa_composition" weights=1.0 />-->
+                <ScoreFunction name="r15_relax" weights="ref2015_cst.wts" >
+                   <Reweight scoretype="chainbreak" weight="1.0" />
+                   <Reweight scoretype="linear_chainbreak" weight="1.0" />
+                   <Reweight scoretype="overlap_chainbreak" weight="1.0" />
+                </ScoreFunction>
+		<ScoreFunction name="r15_design" weights="ref2015_cst.wts" >
+                   <Reweight scoretype="buried_unsatisfied_penalty" weight="30.0" />
+                   <Reweight scoretype="hbnet" weight="1.0" />
+                   <Reweight scoretype="voids_penalty" weight="1.0" />
+                   <Reweight scoretype="aa_composition" weight="1.0" />
+                   <Reweight scoretype="chainbreak" weight="10.0" />
+                   <Reweight scoretype="linear_chainbreak" weight="10.0" />
+                   <Reweight scoretype="overlap_chainbreak" weight="10.0" />
+                   <Reweight scoretype="hbond_sr_bb" weight="10.0" />
+        	   <Reweight scoretype="hbond_lr_bb" weight="10.0" />
+        	   <Set voids_penalty_energy_containing_cones_cutoff="4" />
+        	   <Set voids_penalty_energy_cone_distance_cutoff="7.0" />
+       		   <Set buried_unsatisfied_penalty_burial_threshold="1.5" />
+        	   <Set buried_unsatisfied_penalty_cone_dist_midpoint="7.0" />
+        	   <Set buried_unsatisfied_penalty_cone_angle_exponent="2.0" />
+        	   <Set buried_unsatisfied_penalty_cone_angle_shift_factor="0.35" />
+      		</ScoreFunction>
+	</SCOREFXNS>
+	<RESIDUE_SELECTORS>
+                <Chain name="chainC" chains="C" />
+		<Chain name="chainB" chains="B" />
+		<Chain name="chainA" chains="A" />
+                <!--Index name="first" resnums="9" reverse="1" />-->
+                <!--Index name="last" resnums="1" reverse="1"/>-->
+                <Slice name="first" selector="chainC" indices="1" />
+                <Slice name="last" selector="chainC" indices="6" />
+                <Or name="first_or_last" selectors="first,last" />
+		<Not name="notC" selector="chainB" />
+		<Not name="notA" selector="chainA" />
+                <Neighborhood name="neighborhood" selector="chainA" distance="12" include_focus_in_subset="true" />
+                <Not name="not_interface" selector="neighborhood" />
+	</RESIDUE_SELECTORS>
+	<PACKER_PALETTES>
+		<CustomBaseTypePackerPalette name="mini_palette" additional_residue_types="001,101,111,202,208,211,303,411,601,602" />
+		<CustomBaseTypePackerPalette name="design_palette" additional_residue_types="026,651,303,211,411,321,305,205,118,006,602,103,111,406,202,210,001,101,314,410,601,005,009,117,007,204,208,412" />
+	</PACKER_PALETTES>
+	<TASKOPERATIONS>
+		<OperateOnResidueSubset name="dont_design_protein" selector="notA" >
+                   <RestrictToRepackingRLT />
+                </OperateOnResidueSubset>
+                <OperateOnResidueSubset name="dont_repack_protein" selector="not_interface" >
+                   <PreventRepackingRLT/>
+                </OperateOnResidueSubset>
+                <RestrictToResidueProperties name="only_design_peptoids" properties="PEPTOID" selector="chainA" />
+                <LimitAromaChi2 name="limitaromachi2" />
+                <ExtraRotamersGeneric name="extrarot1" ex1="true" ex2="false" extrachi_cutoff="4" />
+                <ExtraRotamersGeneric name="extrarot2" ex1="true" ex2="true" extrachi_cutoff="4" />
+                <IncludeCurrent name="includecurrent" />
+	</TASKOPERATIONS>
+	<MOVE_MAP_FACTORIES>
+		<MoveMapFactory name="minimize_jumps" bb="0" chi="1" jumps="1" />
+	</MOVE_MAP_FACTORIES>
+	<SIMPLE_METRICS>
+		<SequenceMetric name="sequence" output_mode="threeletter" residue_selector="chainA" />
+	</SIMPLE_METRICS>
+	<FILTERS>
+		<ScoreType name="high_score" scorefxn="r15" score_type="total_score" threshold="0.0"/>
+	</FILTERS>
+	<MOVERS>
+		<AddChain name="add_chainB" file_name="1urc_chainB.pdb" new_chain="1" scorefxn="r15" />
+		<DockingProtocol name="dock" docking_score_high="r15" low_res_protocol_only="0" docking_local_refine="1" dock_min="1" partners="A_B"/>
+		<ModifyVariantType name="strip_lower_terminal_type" remove_type="LOWER_TERMINUS_VARIANT" residue_selector="chainC" />
+     	        <ModifyVariantType name="strip_upper_terminal_type" remove_type="UPPER_TERMINUS_VARIANT" residue_selector="chainC" />
+                <ModifyVariantType name="add_cutpoint_upper" add_type="CUTPOINT_UPPER" residue_selector="first" />
+                <ModifyVariantType name="add_cutpoint_lower" add_type="CUTPOINT_LOWER" residue_selector="last" />
+                <ModifyVariantType name="strip_nmethylation" remove_type="N_METHYLATION" residue_selector="chainC" />
+                <ParsedProtocol name="do_cutpoint" >
+                   <Add mover="strip_lower_terminal_type" />
+                   <Add mover="strip_upper_terminal_type" />
+                   <Add mover="add_cutpoint_upper" />
+                   <Add mover="add_cutpoint_lower" />
+                </ParsedProtocol>
+		<DeclareBond name="connect_termini" atom1="C" atom2="N" res1="6" res2="1" />
+		<FastDesign name="fdes1" repeats="3" scorefxn="r15_design" packer_palette="design_palette" task_operations="dont_design_protein,dont_repack_protein,extrarot1,limitaromachi2,only_design_peptoids" relaxscript="MonomerDesign2019" movemap_factory="minimize_jumps" />
+		<InterfaceAnalyzerMover name="IA" scorefxn="r15" pack_separated="true" pack_input="false" interface_sc="true" ligandchain="A" />
+                <DumpPdb name="dump_pdb" fname="dump.pdb" tag_time="true" scorefxn="r15_relax" />
+		<ScoreMover name="rescore" scorefxn="r15" verbose="false" />
+		<RunSimpleMetrics name="run_metrics" metrics="sequence" />
+		<MinMover name="minimize_jumps" movemap_factory="minimize_jumps" scorefxn="r15" />`  
+		<AddCompositionConstraintMover name="constraints" filename="constraints.comp" selector="chainA" />
+	</MOVERS>
+	<PROTOCOLS>
+		<Add mover="strip_nmethylation" />
+		<Add mover="do_cutpoint" />
+		<Add mover="connect_termini" />
+		<Add mover="add_chainB" />
+		<Add mover="constraints" />
+		<Add mover="fdes1" />
+		<Add mover="IA" />
+                <Add mover="rescore" />
+		<Add mover="run_metrics" />
+	</PROTOCOLS>
+</ROSETTASCRIPTS>
+
