@@ -5,7 +5,7 @@ import sys
 import os
 import glob
 
-OUTPUT_SUFFIX = "_renamed.pdb"  # Result will be inputname_renamed.pdb
+OUTPUT_SUFFIX = "_renamed.pdb" 
 
 def get_element_from_type(atom_type):
     """Infers element from GAFF atom types."""
@@ -130,12 +130,10 @@ def build_pdb_residue_graph(residue_data, full_connectivity):
     return G
 
 def find_matching_mol2(resName, available_mol2s):
-    # 1. Exact Name match (e.g. "006.mol2")
     for m in available_mol2s:
         if os.path.basename(m).split('.')[0] == resName:
             return m
             
-    # 2. Contains Name (e.g. "006.gaff2.mol2")
     for m in available_mol2s:
         if resName in os.path.basename(m):
             return m
@@ -204,7 +202,6 @@ def process_single_pdb(pdb_file, available_mol2s):
     print(f"  Done. Saved to {output_name}")
 
 def main():
-    # 1. Find all PDB files (excluding already renamed ones)
     all_pdbs = glob.glob("*.pdb")
     pdbs_to_process = [p for p in all_pdbs if OUTPUT_SUFFIX not in p]
     
@@ -212,7 +209,7 @@ def main():
         print("No .pdb files found in this directory!")
         return
 
-    # 2. Find all Mol2 files (library of fragments)
+    # Find all Mol2 files 
     available_mol2s = glob.glob("*.mol2")
     if not available_mol2s:
         print("No .mol2 files found! Cannot rename atoms without templates.")
@@ -220,7 +217,7 @@ def main():
         
     print(f"Found {len(available_mol2s)} template (.mol2) files.")
 
-    # 3. Process each PDB
+    # Process each PDB
     for pdb_file in pdbs_to_process:
         process_single_pdb(pdb_file, available_mol2s)
 
