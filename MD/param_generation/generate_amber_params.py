@@ -73,7 +73,6 @@ def rename_hydrogens(mol):
 
         res_info = neighbor.GetPDBResidueInfo()
         if res_info is None:
-            # If for some reason there is no residue info, skip renaming
             continue
 
         neighbor_name = res_info.GetName().strip()
@@ -85,7 +84,6 @@ def rename_hydrogens(mol):
         elif neighbor_name.startswith('C'):
             h_base = 'H' + neighbor_name[1:]
         else:
-            # Default for O, etc.
             h_base = 'H' + neighbor_name[0]
 
         count = h_counts.get(neighbor_idx, 1)
@@ -127,7 +125,6 @@ def smiles_to_pdb(name, smiles, out_dir):
                 print(f"[{name}] Sanitization failed after reaction: {e}")
                 continue
 
-            # Give default residue info + atom names so downstream calls don't crash
             default_res_name = 'UNK'
             default_res_num = 1
             for atom in m.GetAtoms():
@@ -139,7 +136,6 @@ def smiles_to_pdb(name, smiles, out_dir):
                     default_name = f'{atom.GetSymbol()}{atom.GetIdx()+1}'
                     atom.GetPDBResidueInfo().SetName(f'{default_name: <4}')
 
-            # Try amino acid naming, then peptoid naming
             m, msg = apply_amino_acid_naming(m)
             if "Warning" in msg:
                 m, msg = apply_peptoid_naming(m)
@@ -147,13 +143,11 @@ def smiles_to_pdb(name, smiles, out_dir):
             if "Warning" in msg:
                 print(f"[{name}] Warning: Could not find any backbone pattern. Using default names.")
 
-            # Add Hs with residue info
             m_h = Chem.AddHs(m, addResidueInfo=True)
 
             # Rename hydrogens
             m_h = rename_hydrogens(m_h)
 
-            # Embed + minimize
             try:
                 params = AllChem.ETKDGv2()
                 params.randomSeed = 42
@@ -165,7 +159,6 @@ def smiles_to_pdb(name, smiles, out_dir):
             try:
                 AllChem.UFFOptimizeMolecule(m_h, maxIters=500)
             except Exception:
-                # If minimization fails, still write the embedded structure
                 pass
 
             # Write PDB
@@ -204,7 +197,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Read CSV
     df = pd.read_csv(args.csv)
 
     if args.smiles_col not in df.columns:
