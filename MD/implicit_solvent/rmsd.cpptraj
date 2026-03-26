@@ -1,0 +1,21 @@
+parm design_1.parm7
+trajin md1.nc 3000 5000
+
+reference md1.nc 3000 [ref_eq]
+
+rms fit_protein ref [ref_eq] :6-668@CA,C,N
+
+#Peptoid macrocycle RMSD
+rmsd lig_mmgbsa \
+     out peptoid_rmsd.dat \
+     ref [ref_eq] \
+     :1-5&!@H=
+
+
+#Binding-site + peptoid RMSD
+rmsd bs_plus_lig_mmgbsa \
+     out binding_site_rmsd.dat \
+     ref [ref_eq] \
+     (:166-172,192,194,196,367,371-377,383,388-392,394-396,400,495,513,528,529,531,597,98,599,600,642,643-648,:1-5)&!@H=
+
+run
