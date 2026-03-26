@@ -5,14 +5,14 @@ reference md1.nc 3000 [ref_eq]
 
 rms fit_protein ref [ref_eq] :6-668@CA,C,N
 
-#Peptoid macrocycle RMSD
+#peptoid macrocycle RMSD
 rmsd lig_mmgbsa \
      out peptoid_rmsd.dat \
      ref [ref_eq] \
      :1-5&!@H=
 
 
-#Binding-site + peptoid RMSD
+#binding-site + peptoid RMSD
 rmsd bs_plus_lig_mmgbsa \
      out binding_site_rmsd.dat \
      ref [ref_eq] \
