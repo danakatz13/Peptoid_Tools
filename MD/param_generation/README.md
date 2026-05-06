@@ -6,7 +6,7 @@ Need to setup a custom enviorment (**add requirments.txt**)
 module purge
 module load anaconda3/2020.07
 module load amber/openmpi/intel/22.03
-conda activate /scratch/dk4128/penv
+conda activate /scratch/dk4128/amber/penv
 ```
 ### Use SMILES and generate_amber_mol2.py
 To generate these consistent structure files, we use their SMILES, written as either a primary amine (peptoid) or a peptide residue (NC(R)C(=O)) for a non-canonical amino acid.
