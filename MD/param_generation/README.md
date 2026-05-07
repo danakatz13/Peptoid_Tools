@@ -16,7 +16,7 @@ generate_amber_mol2 will generate a .mol of the capped residue.
 python generate_amber_mol2.py smiles.csv -o output_dir
 ```
 smiles.csv has 2 columns : code + SMILES with comma delimeter. Code should be 3 characters and NEVER the same as a canonical amino acid.
-In output_dir you will now have a .mol file for each residue. Originally, it generated the files as PDBs, but it seemed to cause some downstream consequence due to some of the double bonds not being properly labeled (PDBs have no bond order). MOL2 should correctly store bond orders
+In output_dir you will now have a .pdb file for each residue. 
 
 ### Generate GAFF atom types for your capped residue
 This step is necessary to view the GAFF atom names that AMBER will give your atoms. Visualizing this in PyMol will be helpful for later steps to match atom names. 
@@ -35,7 +35,7 @@ These following steps generate partial charges/atom names/bond angles/bond dihed
 
 For one single residue at a time : 
 ```
-antechamber -i 003.mol2 -fi mol2 -bk 003 -fo ac -o 003.ac -c bcc -at amber -nc 0
+antechamber -i 003.pdb -fi pdb -bk 003 -fo ac -o 003.ac -c bcc -at amber -nc 0
 ```
 For all residues in a directory : 
 ```
