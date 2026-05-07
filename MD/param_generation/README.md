@@ -35,7 +35,7 @@ These following steps generate partial charges/atom names/bond angles/bond dihed
 
 For one single residue at a time : 
 ```
-antechamber -i 003.pdb -fi pdb -bk 003 -fo ac -o 003.ac -c bcc -at amber -nc 0
+antechamber -i 003.mol2 -fi mol2 -bk 003 -fo ac -o 003.ac -c bcc -at amber -nc 0
 ```
 For all residues in a directory : 
 ```
